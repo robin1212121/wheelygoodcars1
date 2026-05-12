@@ -37,21 +37,25 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    // stap 1: kenteken invoeren
     Route::get('/cars/create', [CarController::class, 'enterLicensePlate'])
         ->name('cars.enterLicensePlate');
 
-    // stap 2: check RDW + session
     Route::post('/cars/check-license', [CarController::class, 'checkLicensePlate'])
         ->name('cars.checkLicensePlate');
 
-    // stap 3: create form
     Route::get('/cars/create/form', [CarController::class, 'create'])
         ->name('cars.create');
 
-    // opslaan
     Route::post('/cars', [CarController::class, 'store'])
         ->name('cars.store');
+
+    /*
+    |--------------------------------------------------------------------------
+    | DETAIL ROUTE (BELANGRIJK: MOET BOVEN {car} LOGICA)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/cars/{car}', [CarController::class, 'show'])
+        ->name('cars.show');
 
     /*
     |--------------------------------------------------------------------------
@@ -82,9 +86,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/cars/{car}/pdf', [CarPdfController::class, 'download'])
         ->name('cars.pdf');
-
-    Route::get('/cars/{car}', [CarController::class, 'show'])
-        ->name('cars.show');
 
     /*
     |--------------------------------------------------------------------------

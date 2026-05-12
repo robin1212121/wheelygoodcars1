@@ -5,9 +5,13 @@
     <h1>Alle auto's</h1>
 
     <div class="row">
+
         @foreach($cars as $car)
             <div class="col-md-4 mb-4">
-                <div class="card h-100">
+
+                <div class="card h-100"
+                     onclick="window.location='{{ route('cars.show', $car) }}'"
+                     style="cursor:pointer;">
 
                     {{-- IMAGE --}}
                     <img 
@@ -28,21 +32,21 @@
                         <p>Bouwjaar: {{ $car->production_year ?? '-' }}</p>
                         <p>Kilometerstand: {{ $car->mileage ?? 0 }}</p>
 
-                        {{-- 🔥 VIEWS TOEGEVOEGD --}}
                         <p><strong>Views:</strong> {{ $car->views }}</p>
 
                         <p class="text-muted">
                             Aanbieder: {{ $car->user->name ?? 'Onbekend' }}
                         </p>
 
-                        {{-- DELETE --}}
+                        {{-- DELETE (niet klikbaar maken card) --}}
                         @auth
                             @if($car->user_id === auth()->id())
                                 <form action="{{ route('cars.destroy', $car->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
 
-                                    <button class="btn btn-warning btn-sm w-100">
+                                    <button class="btn btn-warning btn-sm w-100"
+                                            onclick="event.stopPropagation()">
                                         Verwijderen
                                     </button>
                                 </form>
@@ -52,8 +56,10 @@
                     </div>
 
                 </div>
+
             </div>
         @endforeach
+
     </div>
 </div>
 @endsection

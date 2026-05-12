@@ -26,15 +26,23 @@
 
             <tbody>
                 @foreach($cars as $car)
-                <tr>
+
+                {{-- 🔥 HELE RIJ KLIKBAAR --}}
+                <tr
+                    onclick="window.location='{{ route('cars.show', $car->id) }}'"
+                    style="cursor:pointer;"
+                    onmouseover="this.style.background='#f5f5f5'"
+                    onmouseout="this.style.background=''"
+                >
 
                     <td>{{ $car->license_plate }}</td>
                     <td>{{ $car->brand }}</td>
                     <td>{{ $car->model }}</td>
 
-                    {{-- ✔ prijs (bewerkbaar) --}}
+                    {{-- prijs form --}}
                     <td>
-                        <form action="{{ route('cars.update', $car) }}" method="POST" class="d-flex gap-1">
+                        <form action="{{ route('cars.update', $car) }}" method="POST" class="d-flex gap-1"
+                              onclick="event.stopPropagation()">
                             @csrf
                             @method('PUT')
 
@@ -43,41 +51,43 @@
                                    value="{{ $car->price }}"
                                    class="form-control form-control-sm"
                                    style="width:100px;">
-
                     </td>
 
                     <td>{{ $car->color ?? '-' }}</td>
                     <td>{{ $car->production_year ?? '-' }}</td>
                     <td>{{ $car->mileage ?? 0 }}</td>
 
-                    {{-- ✔ status --}}
+                    {{-- status --}}
                     <td>
                         <span class="badge {{ $car->status === 'sold' ? 'bg-danger' : 'bg-success' }}">
                             {{ $car->status === 'sold' ? 'Verkocht' : 'Te koop' }}
                         </span>
                     </td>
 
-                    {{-- ACTIES --}}
+                    {{-- acties --}}
                     <td class="d-flex gap-2">
 
-                        {{-- OPSLAAN (prijs + status) --}}
-                        <select name="status" class="form-select form-select-sm">
+                        <select name="status" class="form-select form-select-sm"
+                                onclick="event.stopPropagation()">
                             <option value="available" @selected($car->status=='available')>Te koop</option>
                             <option value="sold" @selected($car->status=='sold')>Verkocht</option>
                         </select>
 
-                        <button class="btn btn-primary btn-sm">
+                        <button class="btn btn-primary btn-sm" onclick="event.stopPropagation()">
                             Opslaan
                         </button>
                         </form>
 
                         {{-- PDF --}}
-                        <a href="{{ route('cars.pdf', $car) }}" class="btn btn-secondary btn-sm">
+                        <a href="{{ route('cars.pdf', $car) }}"
+                           class="btn btn-secondary btn-sm"
+                           onclick="event.stopPropagation()">
                             PDF
                         </a>
 
-                        {{-- VERWIJDEREN --}}
-                        <form action="{{ route('cars.destroy', $car->id) }}" method="POST">
+                        {{-- DELETE --}}
+                        <form action="{{ route('cars.destroy', $car->id) }}" method="POST"
+                              onclick="event.stopPropagation()">
                             @csrf
                             @method('DELETE')
 
@@ -89,6 +99,7 @@
 
                     </td>
                 </tr>
+
                 @endforeach
             </tbody>
         </table>
