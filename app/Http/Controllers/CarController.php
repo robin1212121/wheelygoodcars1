@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -6,27 +7,41 @@ use App\Models\Car;
 
 class CarController extends Controller
 {
-    // Publiek overzicht van auto's
     public function index()
     {
-        $cars = Car::all();
+        // 🔥 ALLEEN LADEN (NIET incrementen!)
+        $cars = Car::with('user')
+            ->latest()
+            ->get();
+
         return view('cars.index', compact('cars'));
     }
 
-    // Overzicht van ingelogde gebruiker
-    public function myCars()
+    // 🔥 NIEUW: detail pagina (hier komt views)
+    public function show(Car $car)
     {
-        $cars = Car::where('user_id', auth()->id())->get();
-        return view('cars.my-cars', compact('cars')); // check: bestand = my-cars.blade.php
+        // 👀 views tellen per auto BEZOEK
+        $car->increment('views');
+
+        $car->load('user');
+
+        return view('cars.show', compact('car'));
     }
 
-    // Stap 1: Kenteken invoeren
+    public function myCars()
+    {
+        $cars = Car::where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('cars.my-cars', compact('cars'));
+    }
+
     public function enterLicensePlate()
     {
         return view('cars.enter-license');
     }
 
-    // Stap 2: Kenteken checken + RDW info ophalen
     public function checkLicensePlate(Request $request)
     {
         $request->validate([
@@ -35,52 +50,115 @@ class CarController extends Controller
 
         $licensePlate = strtoupper(str_replace('-', '', $request->license_plate));
 
-        // RDW API ophalen
         $url = "https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken={$licensePlate}";
-        $response = file_get_contents($url);
-        $data = json_decode($response, true);
+        $response = @file_get_contents($url);
 
-        if (empty($data)) {
-            return back()->withErrors(['license_plate' => 'Kenteken niet gevonden in RDW']);
+        if (!$response) {
+            return back()->withErrors([
+                'license_plate' => 'RDW API niet bereikbaar'
+            ]);
         }
 
-        $carData = $data[0];
+        $data = json_decode($response, true);
 
-        $brand = $carData['merk'] ?? 'Onbekend';
-        $model = $carData['handelsbenaming'] ?? 'Onbekend';
-        $year = isset($carData['datum_eerste_toelating']) && !empty($carData['datum_eerste_toelating'])
-            ? substr($carData['datum_eerste_toelating'], 0, 4)
-            : 'Onbekend';
+        if (empty($data) || !isset($data[0])) {
+            return back()->withErrors([
+                'license_plate' => 'Geen voertuig gevonden'
+            ]);
+        }
 
-        return view('cars.create', compact('licensePlate', 'brand', 'model', 'year'));
+        session([
+            'car_api_data' => $data[0],
+            'license_plate' => $licensePlate
+        ]);
+
+        return redirect()->route('cars.create');
     }
 
-    // Opslaan van auto
+    public function create()
+    {
+        $carData = session('car_api_data');
+
+        if (!$carData) {
+            return redirect()->route('cars.enterLicensePlate');
+        }
+
+        return view('cars.create', compact('carData'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
-            'license_plate' => 'required|string|max:20',
-            'brand' => 'required|string|max:255',
-            'model' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
+
+        $carData = session('car_api_data');
+
+        if (!$carData) {
+            return redirect()->route('cars.enterLicensePlate')
+                ->withErrors(['error' => 'Geen RDW data gevonden']);
+        }
+
+        $imageUrl = null;
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+
+            if ($file->isValid()) {
+
+                $targetDir = public_path('img/cars');
+
+                if (!file_exists($targetDir)) {
+                    mkdir($targetDir, 0755, true);
+                }
+
+                $filename = uniqid('car_', true) . '.' . $file->getClientOriginalExtension();
+
+                $file->move($targetDir, $filename);
+
+                $imageUrl = '/img/cars/' . $filename;
+            }
+        }
 
         Car::create([
             'user_id' => auth()->id(),
-            'license_plate' => strtoupper($request->license_plate),
-            'brand' => $request->brand,
-            'model' => $request->model,
+            'license_plate' => session('license_plate'),
+
+            'brand' => $carData['merk'] ?? 'Onbekend',
+            'model' => $carData['handelsbenaming'] ?? 'Onbekend',
+
+            'production_year' => isset($carData['datum_eerste_toelating'])
+                ? substr($carData['datum_eerste_toelating'], 0, 4)
+                : null,
+
             'price' => $request->price,
+
+            'mileage' => 0,
+            'seats' => $carData['aantal_zitplaatsen'] ?? null,
+            'doors' => $carData['aantal_deuren'] ?? null,
+            'weight' => $carData['massa_rijklaar'] ?? null,
+            'color' => $carData['eerste_kleur'] ?? null,
+
+            'image' => $imageUrl,
+
+            'views' => 0,
         ]);
 
-        return redirect()->route('cars.my')->with('success', 'Auto succesvol toegevoegd!');
+        session()->forget([
+            'car_api_data',
+            'license_plate'
+        ]);
+
+        return redirect()->route('cars.my')
+            ->with('success', 'Auto toegevoegd!');
     }
 
-    // Auto verwijderen
     public function destroy(Car $car)
     {
-        $this->authorize('delete', $car); // optioneel: check dat de ingelogde gebruiker eigenaar is
         $car->delete();
-        return redirect()->route('cars.my')->with('success', 'Auto verwijderd!');
+
+        return redirect()->route('cars.my')
+            ->with('success', 'Auto verwijderd!');
     }
 }

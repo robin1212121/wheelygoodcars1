@@ -22,8 +22,7 @@ class Car extends Model
         'weight',
         'color',
         'image',
-        'sold_at',
-        'views'
+        'sold_at'
     ];
 
     public function user()
