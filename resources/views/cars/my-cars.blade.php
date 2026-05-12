@@ -27,7 +27,6 @@
             <tbody>
                 @foreach($cars as $car)
 
-                {{-- 🔥 HELE RIJ KLIKBAAR --}}
                 <tr
                     onclick="window.location='{{ route('cars.show', $car->id) }}'"
                     style="cursor:pointer;"
@@ -38,8 +37,6 @@
                     <td>{{ $car->license_plate }}</td>
                     <td>{{ $car->brand }}</td>
                     <td>{{ $car->model }}</td>
-
-                    {{-- prijs form --}}
                     <td>
                         <form action="{{ route('cars.update', $car) }}" method="POST" class="d-flex gap-1"
                               onclick="event.stopPropagation()">
@@ -57,14 +54,12 @@
                     <td>{{ $car->production_year ?? '-' }}</td>
                     <td>{{ $car->mileage ?? 0 }}</td>
 
-                    {{-- status --}}
                     <td>
                         <span class="badge {{ $car->status === 'sold' ? 'bg-danger' : 'bg-success' }}">
                             {{ $car->status === 'sold' ? 'Verkocht' : 'Te koop' }}
                         </span>
                     </td>
 
-                    {{-- acties --}}
                     <td class="d-flex gap-2">
 
                         <select name="status" class="form-select form-select-sm"
@@ -78,14 +73,12 @@
                         </button>
                         </form>
 
-                        {{-- PDF --}}
                         <a href="{{ route('cars.pdf', $car) }}"
                            class="btn btn-secondary btn-sm"
                            onclick="event.stopPropagation()">
                             PDF
                         </a>
 
-                        {{-- DELETE --}}
                         <form action="{{ route('cars.destroy', $car->id) }}" method="POST"
                               onclick="event.stopPropagation()">
                             @csrf

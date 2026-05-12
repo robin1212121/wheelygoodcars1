@@ -99,11 +99,11 @@ class CarController extends Controller
                 ->withErrors(['error' => 'Geen RDW data gevonden']);
         }
 
-        // SAFE mileage
+       
         $mileage = preg_replace('/[^0-9]/', '', $request->mileage);
         $mileage = $mileage !== '' ? (int)$mileage : 0;
 
-        // image upload
+      
         $imageUrl = null;
 
         if ($request->hasFile('image')) {
@@ -148,7 +148,7 @@ class CarController extends Controller
             ->with('success', 'Auto toegevoegd!');
     }
 
-    // ✅ FIX: update methode (was je error)
+    
     public function update(Request $request, Car $car)
     {
         if ($car->user_id !== auth()->id()) {

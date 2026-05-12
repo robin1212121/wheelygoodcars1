@@ -41,7 +41,7 @@
             <input type="number" name="price" class="form-control" required>
         </div>
 
-        <!-- 🔥 FIX: kilometerstand -->
+        
         <div class="mb-3">
             <label>Kilometerstand</label>
             <input type="number" name="mileage" class="form-control" required placeholder="bijv. 125000">

@@ -13,7 +13,7 @@
                      onclick="window.location='{{ route('cars.show', $car) }}'"
                      style="cursor:pointer;">
 
-                    {{-- IMAGE --}}
+                 
                     <img 
                         src="{{ $car->image ? $car->image : asset('img/default-car.jpg') }}" 
                         class="card-img-top" 
@@ -38,7 +38,6 @@
                             Aanbieder: {{ $car->user->name ?? 'Onbekend' }}
                         </p>
 
-                        {{-- DELETE (niet klikbaar maken card) --}}
                         @auth
                             @if($car->user_id === auth()->id())
                                 <form action="{{ route('cars.destroy', $car->id) }}" method="POST">

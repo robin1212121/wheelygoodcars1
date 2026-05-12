@@ -5,7 +5,6 @@
 
     <div class="row align-items-stretch">
 
-        {{-- AFBEELDING --}}
         <div class="col-md-6 mb-4">
 
             <div class="card shadow-sm h-100">
@@ -39,7 +38,7 @@
                     <p><strong>Bouwjaar:</strong> {{ $car->production_year ?? '-' }}</p>
                     <p><strong>Kilometerstand:</strong> {{ $car->mileage ?? 0 }}</p>
                     <p><strong>Stoelen:</strong> {{ $car->seats ?? '-' }}</p>
-                    <p><strong>Deuren:</strong> {{ $car->doors ?? '-' }}</p>
+                    
                     <p><strong>Gewicht:</strong> {{ $car->weight ?? '-' }}</p>
 
                     <hr>
@@ -61,7 +60,6 @@
 
                 </div>
 
-                {{-- knop onderaan --}}
                 <div class="mt-3">
                     <a href="{{ route('cars.index') }}" class="btn btn-secondary w-100">
                         ← Terug naar overzicht

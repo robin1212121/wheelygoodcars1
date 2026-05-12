@@ -35,7 +35,7 @@ class CarController extends Controller
 
             $carData = $data[0];
 
-            // veilige mapping (RDW kan velden missen)
+            
             $brand = $carData['merk'] ?? 'Onbekend';
             $model = $carData['handelsbenaming'] ?? 'Onbekend';
 
@@ -43,7 +43,7 @@ class CarController extends Controller
                 ? substr($carData['datum_eerste_toelating'], 0, 4)
                 : null;
 
-            // BELANGRIJK: ook andere data meenemen voor later gebruik
+        
             session([
                 'license_plate' => $licensePlate,
                 'car_api_data' => $carData

@@ -32,7 +32,7 @@
 
                     <td>€ {{ number_format($car->price, 2) }}</td>
 
-                    {{-- STATUS --}}
+                   
                     <td>
                         @if($car->status === 'sold')
                             <span class="badge bg-danger">Verkocht</span>
@@ -41,12 +41,12 @@
                         @endif
                     </td>
 
-                    {{-- VIEWS --}}
+                    
                     <td>{{ $car->views ?? 0 }}</td>
 
                     <td class="d-flex gap-2">
 
-                        {{-- VERKOCHT / TERUG TE KOOP --}}
+                   }
                         <form action="{{ route('cars.toggleStatus', $car->id) }}" method="POST">
                             @csrf
                             <button class="btn btn-sm btn-info">
