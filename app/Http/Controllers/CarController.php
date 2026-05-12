@@ -9,23 +9,13 @@ class CarController extends Controller
 {
     public function index()
     {
-        // 🔥 ALLEEN LADEN (NIET incrementen!)
+        // 👇 alleen beschikbare auto's op publieke site
         $cars = Car::with('user')
+            ->where('status', 'available')
             ->latest()
             ->get();
 
         return view('cars.index', compact('cars'));
-    }
-
-    // 🔥 NIEUW: detail pagina (hier komt views)
-    public function show(Car $car)
-    {
-        // 👀 views tellen per auto BEZOEK
-        $car->increment('views');
-
-        $car->load('user');
-
-        return view('cars.show', compact('car'));
     }
 
     public function myCars()
@@ -37,53 +27,11 @@ class CarController extends Controller
         return view('cars.my-cars', compact('cars'));
     }
 
-    public function enterLicensePlate()
+    public function show(Car $car)
     {
-        return view('cars.enter-license');
-    }
+        $car->increment('views');
 
-    public function checkLicensePlate(Request $request)
-    {
-        $request->validate([
-            'license_plate' => 'required|string|max:20'
-        ]);
-
-        $licensePlate = strtoupper(str_replace('-', '', $request->license_plate));
-
-        $url = "https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken={$licensePlate}";
-        $response = @file_get_contents($url);
-
-        if (!$response) {
-            return back()->withErrors([
-                'license_plate' => 'RDW API niet bereikbaar'
-            ]);
-        }
-
-        $data = json_decode($response, true);
-
-        if (empty($data) || !isset($data[0])) {
-            return back()->withErrors([
-                'license_plate' => 'Geen voertuig gevonden'
-            ]);
-        }
-
-        session([
-            'car_api_data' => $data[0],
-            'license_plate' => $licensePlate
-        ]);
-
-        return redirect()->route('cars.create');
-    }
-
-    public function create()
-    {
-        $carData = session('car_api_data');
-
-        if (!$carData) {
-            return redirect()->route('cars.enterLicensePlate');
-        }
-
-        return view('cars.create', compact('carData'));
+        return view('cars.show', compact('car'));
     }
 
     public function store(Request $request)
@@ -100,22 +48,15 @@ class CarController extends Controller
                 ->withErrors(['error' => 'Geen RDW data gevonden']);
         }
 
+        // IMAGE UPLOAD
         $imageUrl = null;
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
 
             if ($file->isValid()) {
-
-                $targetDir = public_path('img/cars');
-
-                if (!file_exists($targetDir)) {
-                    mkdir($targetDir, 0755, true);
-                }
-
                 $filename = uniqid('car_', true) . '.' . $file->getClientOriginalExtension();
-
-                $file->move($targetDir, $filename);
+                $file->move(public_path('img/cars'), $filename);
 
                 $imageUrl = '/img/cars/' . $filename;
             }
@@ -134,7 +75,11 @@ class CarController extends Controller
 
             'price' => $request->price,
 
-            'mileage' => 0,
+            // ✔ FIX mileage veilig
+            'mileage' => (isset($carData['tellerstand']) && is_numeric($carData['tellerstand']))
+                ? (int) $carData['tellerstand']
+                : 0,
+
             'seats' => $carData['aantal_zitplaatsen'] ?? null,
             'doors' => $carData['aantal_deuren'] ?? null,
             'weight' => $carData['massa_rijklaar'] ?? null,
@@ -143,22 +88,57 @@ class CarController extends Controller
             'image' => $imageUrl,
 
             'views' => 0,
+            'status' => 'available',
         ]);
 
-        session()->forget([
-            'car_api_data',
-            'license_plate'
-        ]);
+        session()->forget(['car_api_data', 'license_plate']);
 
-        return redirect()->route('cars.my')
+        return redirect()
+            ->route('cars.my')
             ->with('success', 'Auto toegevoegd!');
+    }
+
+    public function update(Request $request, Car $car)
+    {
+        // 🔒 alleen eigenaar mag aanpassen
+        if ($car->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'price' => 'required|numeric|min:0',
+            'status' => 'required|in:available,sold',
+        ]);
+
+        $car->update([
+            'price' => $request->price,
+            'status' => $request->status,
+        ]);
+
+        return back()->with('success', 'Auto bijgewerkt!');
     }
 
     public function destroy(Car $car)
     {
+        if ($car->user_id !== auth()->id()) {
+            abort(403);
+        }
+
         $car->delete();
 
-        return redirect()->route('cars.my')
-            ->with('success', 'Auto verwijderd!');
+        return back()->with('success', 'Auto verwijderd!');
+    }
+
+    public function toggleStatus(Car $car)
+    {
+        if ($car->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $car->update([
+            'status' => $car->status === 'sold' ? 'available' : 'sold'
+        ]);
+
+        return back();
     }
 }

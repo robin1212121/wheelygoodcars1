@@ -19,6 +19,7 @@
                     <th>Kleur</th>
                     <th>Bouwjaar</th>
                     <th>Km</th>
+                    <th>Status</th>
                     <th>Acties</th>
                 </tr>
             </thead>
@@ -26,23 +27,56 @@
             <tbody>
                 @foreach($cars as $car)
                 <tr>
+
                     <td>{{ $car->license_plate }}</td>
                     <td>{{ $car->brand }}</td>
                     <td>{{ $car->model }}</td>
-                    <td>€ {{ number_format($car->price, 2) }}</td>
+
+                    {{-- ✔ prijs (bewerkbaar) --}}
+                    <td>
+                        <form action="{{ route('cars.update', $car) }}" method="POST" class="d-flex gap-1">
+                            @csrf
+                            @method('PUT')
+
+                            <input type="number"
+                                   name="price"
+                                   value="{{ $car->price }}"
+                                   class="form-control form-control-sm"
+                                   style="width:100px;">
+
+                    </td>
 
                     <td>{{ $car->color ?? '-' }}</td>
                     <td>{{ $car->production_year ?? '-' }}</td>
                     <td>{{ $car->mileage ?? 0 }}</td>
 
+                    {{-- ✔ status --}}
+                    <td>
+                        <span class="badge {{ $car->status === 'sold' ? 'bg-danger' : 'bg-success' }}">
+                            {{ $car->status === 'sold' ? 'Verkocht' : 'Te koop' }}
+                        </span>
+                    </td>
+
+                    {{-- ACTIES --}}
                     <td class="d-flex gap-2">
 
+                        {{-- OPSLAAN (prijs + status) --}}
+                        <select name="status" class="form-select form-select-sm">
+                            <option value="available" @selected($car->status=='available')>Te koop</option>
+                            <option value="sold" @selected($car->status=='sold')>Verkocht</option>
+                        </select>
+
+                        <button class="btn btn-primary btn-sm">
+                            Opslaan
+                        </button>
+                        </form>
+
                         {{-- PDF --}}
-                        <a href="{{ route('cars.pdf', $car) }}" class="btn btn-primary btn-sm">
+                        <a href="{{ route('cars.pdf', $car) }}" class="btn btn-secondary btn-sm">
                             PDF
                         </a>
 
-                        {{-- VERWIJDEREN (FIXED + duidelijker) --}}
+                        {{-- VERWIJDEREN --}}
                         <form action="{{ route('cars.destroy', $car->id) }}" method="POST">
                             @csrf
                             @method('DELETE')

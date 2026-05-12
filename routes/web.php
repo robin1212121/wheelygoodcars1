@@ -49,6 +49,9 @@ Route::get('/cars/{car}/pdf', [CarPdfController::class, 'download'])
     ->middleware('auth')
     ->name('cars.pdf');
    Route::get('/cars/{car}', [CarController::class, 'show'])->name('cars.show');
+   Route::post('/cars/{car}/toggle-status', [CarController::class, 'toggleStatus'])
+    ->name('cars.toggleStatus');
+    Route::put('/cars/{car}', [CarController::class, 'update'])->name('cars.update');
 });
 
 
