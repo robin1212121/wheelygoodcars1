@@ -2,7 +2,18 @@
 
 @section('content')
 <div class="container">
+
     <h1>Kenteken invoeren</h1>
+
+    <div class="progress-container mb-4">
+        <div class="progress-info">
+            <span id="stepText"></span>
+        </div>
+
+        <div class="progress-bar-bg">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+    </div>
 
     @if ($errors->any())
         <div class="alert alert-danger mt-2">
@@ -19,66 +30,41 @@
 
         <label class="mb-3">Kenteken</label>
 
-        
-        <div style="
-            display:flex;
-            align-items:center;
-            width:520px;
-            height:120px;
-            border:4px solid #000;
-            border-radius:14px;
-            overflow:hidden;
-            font-weight:bold;
-            box-shadow:0 4px 12px rgba(0,0,0,0.2);
-        ">
+        <div style="display:flex;align-items:center;width:520px;height:120px;border:4px solid #000;border-radius:14px;overflow:hidden;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.2);">
 
-        
-            <div style="
-                width:90px;
-                height:100%;
-                background:#003399;
-                color:white;
-                display:flex;
-                flex-direction:column;
-                align-items:center;
-                justify-content:center;
-                font-size:14px;
-            ">
+            <div style="width:90px;height:100%;background:#003399;color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;">
                 NL
                 <span style="font-size:22px;">🇪🇺</span>
             </div>
 
-            <div style="
-                flex:1;
-                height:100%;
-                background:#f1c40f;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-            ">
+            <div style="flex:1;height:100%;background:#f1c40f;display:flex;align-items:center;justify-content:center;">
                 <input type="text"
                        name="license_plate"
                        required
                        placeholder="AB123CD"
-                       style="
-                           width:100%;
-                           height:100%;
-                           border:none;
-                           background:transparent;
-                           text-align:center;
-                           font-size:44px;
-                           letter-spacing:8px;
-                           font-weight:bold;
-                           outline:none;
-                           text-transform:uppercase;
-                       ">
+                       style="width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:44px;letter-spacing:8px;font-weight:bold;outline:none;text-transform:uppercase;">
             </div>
 
         </div>
 
-        <button type="submit" class="btn btn-primary mt-4">
-            Volgende
-        </button>
+        <button type="submit" class="btn btn-primary mt-4">Volgende</button>
     </form>
+
 </div>
+
+<script>
+let currentStep = 1;
+let totalSteps = 2;
+
+function updateProgress() {
+    let percentage = (currentStep / totalSteps) * 100;
+
+    document.getElementById('progressBar').style.width = percentage + '%';
+    document.getElementById('stepText').innerText =
+        'Stap ' + currentStep + ' van ' + totalSteps;
+}
+
+updateProgress();
+</script>
+
 @endsection

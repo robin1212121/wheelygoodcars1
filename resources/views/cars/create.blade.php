@@ -2,7 +2,18 @@
 
 @section('content')
 <div class="container">
+
     <h1>Auto toevoegen</h1>
+
+    <div class="progress-container mb-4">
+        <div class="progress-info">
+            <span id="stepText"></span>
+        </div>
+
+        <div class="progress-bar-bg">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+    </div>
 
     <form action="{{ route('cars.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -41,19 +52,34 @@
             <input type="number" name="price" class="form-control" required>
         </div>
 
-        
         <div class="mb-3">
             <label>Kilometerstand</label>
-            <input type="number" name="mileage" class="form-control" required placeholder="bijv. 125000">
+            <input type="number" name="mileage" class="form-control" required>
         </div>
 
         <div class="mb-3">
             <label>Foto van de auto</label>
             <input type="file" name="image" class="form-control" accept="image/*">
-            <small class="text-muted">JPG, PNG of WEBP (max 4MB)</small>
         </div>
 
         <button class="btn btn-success">Opslaan</button>
     </form>
+
 </div>
+
+<script>
+let currentStep = 2;
+let totalSteps = 2;
+
+function updateProgress() {
+    let percentage = (currentStep / totalSteps) * 100;
+
+    document.getElementById('progressBar').style.width = percentage + '%';
+    document.getElementById('stepText').innerText =
+        'Stap ' + currentStep + ' van ' + totalSteps;
+}
+
+updateProgress();
+</script>
+
 @endsection

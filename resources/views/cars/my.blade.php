@@ -54,7 +54,6 @@
                             </button>
                         </form>
 
-                        {{-- VERWIJDEREN --}}
                         <form action="{{ route('cars.destroy', $car->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
