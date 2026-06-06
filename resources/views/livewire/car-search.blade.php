@@ -1,21 +1,21 @@
-<div class="container">
+<div>
 
-    <h1>Zoek auto's</h1>
-
+    {{-- SEARCH BAR --}}
     <input type="text"
-           class="form-control mb-3"
+           class="form-control mb-4"
            placeholder="Zoek op merk of model..."
            wire:model.live="search">
 
+    {{-- RESULTEN --}}
     <div class="row">
-        @foreach($cars as $car)
-            <div class="col-md-4 mb-4">
 
-                <div class="card"
+        @forelse($cars as $car)
+            <div class="col-md-4 mb-3">
+                <div class="card h-100"
                      onclick="window.location='{{ route('cars.show', $car) }}'"
                      style="cursor:pointer;">
 
-                    <img src="{{ $car->image ?? asset('img/default-car.jpg') }}"
+                    <img src="{{ $car->image ?: asset('img/default-car.jpg') }}"
                          class="card-img-top"
                          style="height:200px; object-fit:cover;">
 
@@ -26,9 +26,11 @@
                     </div>
 
                 </div>
-
             </div>
-        @endforeach
+        @empty
+            <p>Geen auto's gevonden</p>
+        @endforelse
+
     </div>
 
 </div>

@@ -7,17 +7,20 @@ use App\Models\Car;
 
 class CarController extends Controller
 {
-    public function index()
-    {
-        $cars = Car::with('user')
-            ->where('status', 'available')
-            ->latest()
-            ->get();
+   public function index()
+{
+    $cars = Car::with('user')
+        ->where('status', 'available')
+        ->orderByDesc('created_at')
+        ->paginate(12);
 
-        return view('cars.index', compact('cars'));
-    }
+    $hotCars = Car::where('status', 'available')
+        ->orderByDesc('views')
+        ->take(3)
+        ->get();
 
-    public function myCars()
+    return view('cars.index', compact('cars', 'hotCars'));
+}    public function myCars()
     {
         $cars = Car::where('user_id', auth()->id())
             ->latest()

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Livewire;
+namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Car;
@@ -11,14 +11,13 @@ class CarSearch extends Component
 
     public function render()
     {
-        $cars = Car::query()
+        $cars = Car::with('user')
             ->where('status', 'available')
-            ->where(function ($query) {
-                $query->where('brand', 'like', '%' . $this->search . '%')
-                      ->orWhere('model', 'like', '%' . $this->search . '%');
+            ->when($this->search, function ($q) {
+                $q->where('brand', 'like', "%{$this->search}%")
+                  ->orWhere('model', 'like', "%{$this->search}%");
             })
             ->orderByDesc('views')
-            ->limit(10)
             ->get();
 
         return view('livewire.car-search', [
