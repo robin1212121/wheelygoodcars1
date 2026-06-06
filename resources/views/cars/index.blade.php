@@ -4,16 +4,29 @@
 <div class="container">
     <h1>Alle auto's</h1>
 
+    @php
+      
+        $sortedCars = $cars->sortByDesc('views');
+
+      
+        $hotIds = $sortedCars->take(3)->pluck('id')->all();
+    @endphp
+
     <div class="row">
 
-        @foreach($cars as $car)
-            <div class="col-md-4 mb-4">
+        @foreach($sortedCars as $car)
 
-                <div class="card h-100"
+            @php
+                $isHot = in_array($car->id, $hotIds);
+            @endphp
+
+            <div class="mb-4 {{ $isHot ? 'col-md-6' : 'col-md-4' }}">
+
+                <div class="card h-100
+                    {{ $isHot ? 'shadow-lg border border-dark' : '' }}"
                      onclick="window.location='{{ route('cars.show', $car) }}'"
                      style="cursor:pointer;">
 
-                 
                     <img 
                         src="{{ $car->image ? $car->image : asset('img/default-car.jpg') }}" 
                         class="card-img-top" 
@@ -24,6 +37,10 @@
 
                         <h5 class="card-title">
                             {{ $car->brand }} {{ $car->model }}
+
+                            @if($isHot)
+                                <span class="badge bg-danger">🔥 Hot</span>
+                            @endif
                         </h5>
 
                         <p>Kenteken: {{ $car->license_plate }}</p>
@@ -57,6 +74,7 @@
                 </div>
 
             </div>
+
         @endforeach
 
     </div>
