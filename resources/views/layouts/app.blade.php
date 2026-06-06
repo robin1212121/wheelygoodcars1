@@ -11,6 +11,9 @@
     <!-- Custom CSS -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
+    {{-- 🔥 LIVEWIRE STYLES --}}
+    @livewireStyles
+
     <style>
         .text-orange {
             color: orange !important;
@@ -65,36 +68,19 @@
                         </a>
                     </li>
 
-                  @if(auth()->check() && auth()->user()->role === 'admin')
-    <li class="nav-item dropdown">
-        <a class="nav-link text-danger dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-            Admin
-        </a>
+                    @if(auth()->check() && auth()->user()->role === 'admin')
+                        <li class="nav-item dropdown">
+                            <a class="nav-link text-danger dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                Admin
+                            </a>
 
-        <ul class="dropdown-menu">
-
-            <li>
-                <a class="dropdown-item" href="{{ route('admin.tags') }}">
-                    Tags overzicht (B4)
-                </a>
-            </li>
-
-            <li>
-                <a class="dropdown-item" href="{{ route('admin.suspicious') }}">
-                    Opvallende aanbieders (B5)
-                </a>
-            </li>
-
-            <li>
-                <a class="dropdown-item" href="{{ route('admin.dashboard') }}">
-                    Dashboard (B6)
-                </a>
-            </li>
-
-        </ul>
-    </li>
-@endif
-                 
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ route('admin.tags') }}">Tags overzicht (B4)</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.suspicious') }}">Opvallende aanbieders (B5)</a></li>
+                                <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}">Dashboard (B6)</a></li>
+                            </ul>
+                        </li>
+                    @endif
                 @endauth
 
             </ul>
@@ -104,20 +90,17 @@
 
                 @guest
                     <li class="nav-item">
-                        <a class="nav-link text-secondary" href="{{ route('register') }}">
-                            Registreren
-                        </a>
+                        <a class="nav-link text-secondary" href="{{ route('register') }}">Registreren</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-secondary" href="{{ route('login') }}">
-                            Inloggen
-                        </a>
+                        <a class="nav-link text-secondary" href="{{ route('login') }}">Inloggen</a>
                     </li>
                 @endguest
 
                 @auth
                     <li class="nav-item">
-                        <a class="nav-link text-secondary" href="{{ route('logout') }}"
+                        <a class="nav-link text-secondary"
+                           href="{{ route('logout') }}"
                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             Uitloggen
                         </a>
@@ -139,5 +122,9 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+@livewireScripts
+
 </body>
 </html>

@@ -2,17 +2,20 @@
 
 @section('content')
 <div class="container">
+
     <h1>Alle auto's</h1>
 
-    @php
-      
-        $sortedCars = $cars->sortByDesc('views');
+   
+    <div class="mb-3">
+        <livewire:car-search />
+    </div>
 
-      
+    @php
+        $sortedCars = $cars->sortByDesc('views');
         $hotIds = $sortedCars->take(3)->pluck('id')->all();
     @endphp
 
-    <div class="row">
+    <div class="row mt-3">
 
         @foreach($sortedCars as $car)
 
@@ -28,7 +31,7 @@
                      style="cursor:pointer;">
 
                     <img 
-                        src="{{ $car->image ? $car->image : asset('img/default-car.jpg') }}" 
+                        src="{{ $car->image ?: asset('img/default-car.jpg') }}" 
                         class="card-img-top" 
                         style="height:200px; object-fit:cover;"
                     >
@@ -78,5 +81,6 @@
         @endforeach
 
     </div>
+
 </div>
 @endsection
