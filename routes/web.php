@@ -4,38 +4,28 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CarPdfController;
+use App\Http\Controllers\AdminController;
 
 Route::get('/', fn() => view('welcome'))->name('home');
 
-/*
-|--------------------------------------------------------------------------
-| PUBLIC
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/cars', [CarController::class, 'index'])->name('cars.index');
-
-/*
-|--------------------------------------------------------------------------
-| AUTH
-|--------------------------------------------------------------------------
-*/
 
 Route::middleware('auth')->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | MY CARS
-    |--------------------------------------------------------------------------
-    */
+    Route::get('/admin/tags', [AdminController::class, 'tags'])
+        ->name('admin.tags');
 
-    Route::get('/my-cars', [CarController::class, 'myCars'])->name('cars.my');
+    Route::get('/admin/suspicious', [AdminController::class, 'suspiciousUsers'])
+        ->name('admin.suspicious');
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE FLOW (RDW)
-    |--------------------------------------------------------------------------
-    */
+    Route::view('/admin/dashboard', 'admin.dashboard')
+        ->name('admin.dashboard');
+
+    Route::get('/admin/dashboard-data', [AdminController::class, 'dashboardData'])
+        ->name('admin.dashboard.data');
+
+    Route::get('/my-cars', [CarController::class, 'myCars'])
+        ->name('cars.my');
 
     Route::get('/cars/create', [CarController::class, 'enterLicensePlate'])
         ->name('cars.enterLicensePlate');
@@ -49,19 +39,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/cars', [CarController::class, 'store'])
         ->name('cars.store');
 
-    /*
-    |--------------------------------------------------------------------------
-    | DETAIL ROUTE (BELANGRIJK: MOET BOVEN {car} LOGICA)
-    |--------------------------------------------------------------------------
-    */
     Route::get('/cars/{car}', [CarController::class, 'show'])
         ->name('cars.show');
-
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT / UPDATE
-    |--------------------------------------------------------------------------
-    */
 
     Route::put('/cars/{car}', [CarController::class, 'update'])
         ->name('cars.update');
@@ -69,29 +48,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/cars/{car}/toggle-status', [CarController::class, 'toggleStatus'])
         ->name('cars.toggleStatus');
 
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE
-    |--------------------------------------------------------------------------
-    */
-
     Route::delete('/cars/{car}', [CarController::class, 'destroy'])
         ->name('cars.destroy');
 
-    /*
-    |--------------------------------------------------------------------------
-    | EXTRA
-    |--------------------------------------------------------------------------
-    */
-
     Route::get('/cars/{car}/pdf', [CarPdfController::class, 'download'])
         ->name('cars.pdf');
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOGOUT
-    |--------------------------------------------------------------------------
-    */
 
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');

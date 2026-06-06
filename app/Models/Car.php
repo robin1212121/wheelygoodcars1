@@ -22,16 +22,19 @@ class Car extends Model
         'weight',
         'color',
         'image',
-
-    
         'views',
-        'status',   
+        'status',
         'sold_at',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
     }
 
     public function isSold()
